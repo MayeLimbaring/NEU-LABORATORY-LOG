@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NEU Laboratory Usage Log</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+:root {
+  --neu-red:#C0272D;--neu-dark:#8B1A1E;--neu-gold:#F5A623;
+  --bg:#f0f2f5;--card:#ffffff;--text:#1a1a2e;--text-muted:#6c757d;
+  --border:#e0e0e0;--success:#28a745;--danger:#dc3545;--info:#17a2b8;
+  --shadow:0 2px 14px rgba(0,0,0,0.08);--radius:12px;--sw:240px;
+}
+.dark{--bg:#0f0f1a;--card:#1a1a2e;--text:#e8e8f0;--text-muted:#9090a0;--border:#2a2a3e;--shadow:0 2px 14px rgba(0,0,0,0.3);}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);transition:background .3s,color .3s;}
+
+/* ── PORTAL ── */
+#portalPage{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(135deg,#1a1a2e,#16213e 55%,#0f3460);position:relative;overflow:hidden;}
+#portalPage::before{content:'';position:absolute;width:600px;height:600px;background:radial-gradient(circle,rgba(192,39,45,.14),transparent 70%);top:-160px;right:-160px;border-radius:50%;}
+#portalPage::after{content:'';position:absolute;width:400px;height:400px;background:radial-gradient(circle,rgba(245,166,35,.07),transparent 70%);bottom:-100px;left:-100px;border-radius:50%;}
+.portal-badge{display:inline-flex;align-items:center;gap:7px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.13);border-radius:20px;padding:5px 16px;color:rgba(255,255,255,.65);font-size:11px;letter-spacing:1px;text-transform:uppercase;margin-bottom:18px;}
+.portal-logo{width:88px;height:88px;border-radius:22px;background:linear-gradient(135deg,var(--neu-red),var(--neu-dark));display:flex;align-items:center;justify-content:center;font-size:40px;margin:0 auto 16px;box-shadow:0 12px 32px rgba(192,39,45,.45);}
+.portal-head{text-align:center;margin-bottom:44px;position:relative;z-index:1;}
+.portal-head h1{font-size:28px;font-weight:800;color:#fff;letter-spacing:-.5px;}
+.portal-head p{color:rgba(255,255,255,.45);font-size:13px;margin-top:5px;}
+.portal-cards{display:flex;gap:18px;position:relative;z-index:1;}
+.pcard{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.11);backdrop-filter:blur(12px);border-radius:20px;padding:34px 28px;width:252px;text-align:center;cursor:pointer;transition:all .3s;position:relative;overflow:hidden;}
+.pcard::before{content:'';position:absolute;inset:0;opacity:0;transition:opacity .3s;border-radius:20px;}
+.pcard.p::before{background:linear-gradient(135deg,rgba(192,39,45,.22),transparent);}
+.pcard.a::before{background:linear-gradient(135deg,rgba(245,166,35,.18),transparent);}
+.pcard:hover{transform:translateY(-6px);border-color:rgba(255,255,255,.22);}
+.pcard:hover::before{opacity:1;}
+.pcard-ico{width:70px;height:70px;border-radius:18px;margin:0 auto 16px;display:flex;align-items:center;justify-content:center;font-size:30px;}
+.pcard.p .pcard-ico{background:rgba(192,39,45,.22);}
+.pcard.a .pcard-ico{background:rgba(245,166,35,.18);}
+.pcard h2{font-size:18px;font-weight:800;color:#fff;margin-bottom:7px;}
+.pcard p{color:rgba(255,255,255,.45);font-size:12px;line-height:1.5;}
+.pcard-arr{display:inline-block;margin-top:16px;color:rgba(255,255,255,.35);font-size:20px;transition:all .2s;}
+.pcard:hover .pcard-arr{transform:translateX(4px);color:#fff;}
+.portal-foot{margin-top:28px;color:rgba(255,255,255,.25);font-size:11px;position:relative;z-index:1;}
+
+/* ── LOGIN PAGES ── */
+.lpage{min-height:100vh;display:none;align-items:center;justify-content:center;position:relative;overflow:hidden;}
+.lpage.active{display:flex;}
+#pLogin{background:linear-gradient(135deg,#C0272D,#8B1A1E 45%,#1a1a2e);}
+#aLogin{background:linear-gradient(135deg,#0f3460,#16213e 50%,#1a1a2e);}
+.lbg{position:absolute;border-radius:50%;pointer-events:none;}
+.lbg1{width:480px;height:480px;background:rgba(255,255,255,.04);top:-140px;right:-140px;}
+.lbg2{width:320px;height:320px;background:rgba(255,255,255,.03);bottom:-80px;left:-80px;}
+.lcard{background:rgba(255,255,255,.97);border-radius:24px;padding:42px 38px;width:420px;position:relative;z-index:1;box-shadow:0 24px 64px rgba(0,0,0,.3);}
+.dark .lcard{background:rgba(26,26,46,.97);}
+.lback{position:absolute;top:16px;left:16px;background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:12px;display:flex;align-items:center;gap:4px;padding:5px 10px;border-radius:7px;transition:background .2s;}
+.lback:hover{background:rgba(0,0,0,.06);}
+.llogo{text-align:center;margin-bottom:26px;margin-top:6px;}
+.lico{width:70px;height:70px;border-radius:18px;margin:0 auto 13px;display:flex;align-items:center;justify-content:center;font-size:28px;box-shadow:0 8px 22px rgba(0,0,0,.2);}
+.lico.r{background:linear-gradient(135deg,var(--neu-red),var(--neu-dark));}
+.lico.b{background:linear-gradient(135deg,#0f3460,#16213e);}
+.llogo h2{font-size:20px;font-weight:800;color:var(--text);}
+.llogo p{color:var(--text-muted);font-size:12px;margin-top:3px;}
+.rtag{display:inline-block;padding:3px 12px;border-radius:20px;font-size:10px;font-weight:800;letter-spacing:.5px;margin-top:7px;text-transform:uppercase;}
+.rtag.r{background:rgba(192,39,45,.1);color:var(--neu-red);}
+.rtag.b{background:rgba(23,162,184,.1);color:var(--info);}
+.btn-gg{width:100%;padding:12px;background:#fff;border:2px solid #e0e0e0;border-radius:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:11px;font-size:13px;font-weight:700;color:#333;transition:all .2s;}
+.btn-gg:hover{border-color:var(--neu-red);background:#fff5f5;transform:translateY(-1px);}
+.divider{text-align:center;color:#bbb;font-size:11px;margin:16px 0;position:relative;}
+.divider::before,.divider::after{content:'';position:absolute;top:50%;width:42%;height:1px;background:#e8e8e8;}
+.divider::before{left:0;}.divider::after{right:0;}
+.btn-qr{width:100%;padding:12px;border:none;border-radius:10px;cursor:pointer;color:#fff;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:9px;transition:all .2s;}
+.btn-qr.r{background:linear-gradient(135deg,var(--neu-red),var(--neu-dark));}
+.btn-qr.b{background:linear-gradient(135deg,#0f3460,#16213e);}
+.btn-qr:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(0,0,0,.28);}
+.lerr{background:#fff0f0;border:1px solid #f5c6cb;color:var(--danger);padding:9px 13px;border-radius:8px;font-size:12px;margin-top:12px;display:none;}
+
+/* ── MODAL ── */
+.moverlay{position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;z-index:2000;}
+.moverlay.active{display:flex;}
+.mbox{background:var(--card);border-radius:20px;padding:30px;width:390px;box-shadow:0 24px 64px rgba(0,0,0,.32);animation:pop .25s ease;border:1px solid var(--border);}
+@keyframes pop{from{opacity:0;transform:scale(.88)}to{opacity:1;transform:scale(1)}}
+.mbox h3{font-size:17px;font-weight:800;margin-bottom:5px;}
+.msub{color:var(--text-muted);font-size:12px;margin-bottom:18px;}
+.mrlabel{display:inline-block;padding:3px 11px;border-radius:20px;font-size:10px;font-weight:800;margin-bottom:14px;text-transform:uppercase;}
+.mrlabel.r{background:rgba(192,39,45,.1);color:var(--neu-red);}
+.mrlabel.b{background:rgba(23,162,184,.1);color:var(--info);}
+.qr-ph{width:140px;height:140px;background:var(--bg);border-radius:14px;margin:0 auto 16px;display:flex;align-items:center;justify-content:center;font-size:56px;border:3px dashed var(--border);}
+.qinp{width:100%;padding:10px 13px;border:2px solid var(--border);border-radius:9px;font-size:14px;background:var(--bg);color:var(--text);transition:border-color .2s;margin-bottom:3px;font-family:monospace;font-weight:600;letter-spacing:.5px;}
+.qinp:focus{outline:none;border-color:var(--neu-red);}
+.qhint{font-size:11px;color:var(--text-muted);margin-bottom:12px;}
+.id-tbl{width:100%;border-collapse:collapse;margin-bottom:14px;font-size:12px;}
+.id-tbl th{text-align:left;padding:5px 7px;background:var(--bg);color:var(--text-muted);font-weight:700;font-size:9px;text-transform:uppercase;letter-spacing:.5px;}
+.id-tbl td{padding:6px 7px;border-bottom:1px solid var(--border);}
+.id-tbl tr:last-child td{border-bottom:none;}
+.qid{font-family:monospace;font-weight:800;font-size:12px;color:var(--neu-red);background:rgba(192,39,45,.08);padding:2px 7px;border-radius:5px;display:inline-block;}
+.qid.a{color:var(--info);background:rgba(23,162,184,.08);}
+
+/* ── APP ── */
+#app{display:none;min-height:100vh;}
+.sidebar{position:fixed;left:0;top:0;bottom:0;width:var(--sw);background:linear-gradient(180deg,#1a1a2e,#16213e);display:flex;flex-direction:column;z-index:100;}
+.sb-head{padding:20px 16px 16px;border-bottom:1px solid rgba(255,255,255,.07);}
+.sb-logo{display:flex;align-items:center;gap:9px;}
+.sb-logo-i{width:32px;height:32px;background:var(--neu-red);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;}
+.sb-logo-t{color:#fff;font-weight:800;font-size:13px;line-height:1.2;}
+.sb-logo-s{color:rgba(255,255,255,.3);font-size:9px;}
+.sb-user{padding:12px 16px;border-bottom:1px solid rgba(255,255,255,.07);display:flex;align-items:center;gap:9px;}
+.uava{width:34px;height:34px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;color:#fff;}
+.uava.p{background:linear-gradient(135deg,var(--neu-red),var(--neu-gold));}
+.uava.a{background:linear-gradient(135deg,#17a2b8,#0f3460);}
+.uname{color:#fff;font-size:12px;font-weight:700;display:block;}
+.uemail{color:rgba(255,255,255,.3);font-size:9px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:155px;}
+.urb{display:inline-block;padding:2px 7px;border-radius:10px;font-size:8px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;margin-top:2px;}
+.urb.p{background:rgba(192,39,45,.25);color:#ff9999;}
+.urb.a{background:rgba(23,162,184,.25);color:#80d8e8;}
+.sb-nav{flex:1;padding:8px 0;overflow-y:auto;}
+.nsec{padding:9px 16px 3px;color:rgba(255,255,255,.22);font-size:8px;text-transform:uppercase;letter-spacing:1px;font-weight:800;}
+.nitem{display:flex;align-items:center;gap:9px;padding:9px 16px;color:rgba(255,255,255,.52);cursor:pointer;transition:all .2s;font-size:12px;border-left:3px solid transparent;}
+.nitem:hover{color:#fff;background:rgba(255,255,255,.05);}
+.nitem.active{color:#fff;background:rgba(192,39,45,.18);border-left-color:var(--neu-red);}
+.nico{font-size:14px;width:16px;text-align:center;}
+.sb-foot{padding:12px 16px;border-top:1px solid rgba(255,255,255,.07);}
+.btn-lo{width:100%;padding:8px;background:rgba(220,53,69,.12);border:1px solid rgba(220,53,69,.24);border-radius:8px;color:#ff7f7f;cursor:pointer;font-size:11px;display:flex;align-items:center;justify-content:center;gap:5px;transition:all .2s;}
+.btn-lo:hover{background:rgba(220,53,69,.22);}
+.main{margin-left:var(--sw);min-height:100vh;}
+.topbar{background:var(--card);border-bottom:1px solid var(--border);padding:12px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;box-shadow:var(--shadow);}
+.tb-title{font-size:16px;font-weight:800;}
+.tb-right{display:flex;align-items:center;gap:9px;}
+.tchip{background:rgba(192,39,45,.08);border:1px solid rgba(192,39,45,.2);color:var(--neu-red);padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700;}
+.dbtn{padding:6px 9px;background:var(--bg);border:1px solid var(--border);border-radius:8px;cursor:pointer;font-size:14px;color:var(--text);transition:all .2s;}
+.dbtn:hover{background:var(--border);}
+.page{display:none;padding:24px;animation:fu .3s ease;}
+.page.active{display:block;}
+@keyframes fu{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
+.card{background:var(--card);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow);border:1px solid var(--border);}
+.sg{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px;}
+.sc{background:var(--card);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow);border:1px solid var(--border);display:flex;align-items:center;gap:12px;transition:transform .2s;}
+.sc:hover{transform:translateY(-2px);}
+.si{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0;}
+.ic-r{background:rgba(192,39,45,.1);}.ic-g{background:rgba(40,167,69,.1);}.ic-b{background:rgba(23,162,184,.1);}.ic-d{background:rgba(245,166,35,.1);}
+.sv{font-size:23px;font-weight:900;line-height:1;}.sl{font-size:10px;color:var(--text-muted);margin-top:3px;}.st{font-size:9px;color:var(--success);margin-top:2px;}
+.cg{display:grid;grid-template-columns:2fr 1fr;gap:14px;margin-bottom:20px;}
+.cc{background:var(--card);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow);border:1px solid var(--border);}
+.ch{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.ct{font-size:13px;font-weight:800;}.ctag{font-size:9px;background:rgba(192,39,45,.1);color:var(--neu-red);padding:2px 7px;border-radius:20px;font-weight:800;}
+.tw{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;}
+th{text-align:left;padding:8px 11px;font-size:9px;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);font-weight:800;border-bottom:2px solid var(--border);}
+td{padding:10px 11px;font-size:12px;border-bottom:1px solid var(--border);}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:rgba(192,39,45,.02);}
+.bx{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:9px;font-weight:800;}
+.b-act{background:rgba(40,167,69,.12);color:var(--success);}
+.b-don{background:rgba(108,117,125,.1);color:var(--text-muted);}
+.b-fre{background:rgba(40,167,69,.12);color:var(--success);}
+.b-occ{background:rgba(220,53,69,.12);color:var(--danger);}
+.b-blk{background:rgba(108,117,125,.12);color:var(--text-muted);}
+.fg{margin-bottom:14px;}
+.fl{display:block;font-size:11px;font-weight:800;margin-bottom:5px;}
+.fc{width:100%;padding:9px 12px;border:2px solid var(--border);border-radius:9px;font-size:13px;background:var(--bg);color:var(--text);transition:border-color .2s;}
+.fc:focus{outline:none;border-color:var(--neu-red);}
+.fg2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.btn{padding:8px 16px;border-radius:9px;border:none;cursor:pointer;font-size:12px;font-weight:800;display:inline-flex;align-items:center;gap:5px;transition:all .2s;}
+.btn-p{background:var(--neu-red);color:#fff;}.btn-p:hover{background:var(--neu-dark);transform:translateY(-1px);box-shadow:0 4px 14px rgba(192,39,45,.35);}
+.btn-s{background:var(--success);color:#fff;}.btn-d{background:var(--danger);color:#fff;}
+.btn-o{background:transparent;border:2px solid var(--border);color:var(--text);}.btn-o:hover{border-color:var(--neu-red);color:var(--neu-red);}
+.btn-sm{padding:4px 10px;font-size:10px;}
+.btn-bl{width:100%;justify-content:center;padding:11px;}
+.btn-ex{background:rgba(23,162,184,.08);border:1px solid rgba(23,162,184,.24);color:var(--info);}
+.btn-ex:hover{background:rgba(23,162,184,.18);}
+.mt2{margin-top:8px;}
+.al{padding:11px 14px;border-radius:10px;font-size:12px;margin-bottom:12px;display:flex;align-items:center;gap:7px;}
+.al-s{background:rgba(40,167,69,.1);border:1px solid rgba(40,167,69,.3);color:#155724;}
+.al-d{background:rgba(220,53,69,.1);border:1px solid rgba(220,53,69,.3);color:#721c24;}
+.dark .al-s{color:#a8d5b5;}.dark .al-d{color:#f5a0a8;}
+.timer-card{background:linear-gradient(135deg,var(--neu-red),var(--neu-dark));border-radius:var(--radius);padding:20px;color:#fff;text-align:center;margin-bottom:20px;}
+.t-room{font-size:15px;font-weight:800;opacity:.9;margin-bottom:5px;}
+.t-disp{font-size:44px;font-weight:900;letter-spacing:4px;font-variant-numeric:tabular-nums;}
+.t-lbl{font-size:11px;opacity:.65;margin-top:3px;}
+.slayout{display:grid;grid-template-columns:1fr 290px;gap:20px;}
+.pcard2{background:var(--card);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);border:1px solid var(--border);position:sticky;top:72px;}
+.pbanner{height:68px;background:linear-gradient(135deg,var(--neu-red),var(--neu-dark));}
+.pavaw{padding:0 16px;transform:translateY(-26px);margin-bottom:-10px;}
+.pava{width:52px;height:52px;border-radius:50%;border:3px solid var(--card);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:900;color:#fff;}
+.pava.p{background:linear-gradient(135deg,var(--neu-red),var(--neu-gold));}
+.pinfo{padding:5px 16px 16px;}
+.pinfo h3{font-size:13px;font-weight:800;}.pinfo p{font-size:10px;color:var(--text-muted);}
+.pstats{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);margin-top:12px;}
+.ps{background:var(--card);padding:11px;text-align:center;}
+.psv{font-size:17px;font-weight:900;color:var(--neu-red);}.psl{font-size:9px;color:var(--text-muted);}
+.rg{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;}
+.rc{background:var(--card);border:2px solid var(--border);border-radius:var(--radius);padding:14px;text-align:center;transition:all .2s;}
+.rc:hover{transform:translateY(-2px);box-shadow:var(--shadow);}
+.rc.free{border-color:rgba(40,167,69,.4);}.rc.occupied{border-color:rgba(220,53,69,.4);background:rgba(220,53,69,.02);}
+.rnum{font-size:14px;font-weight:800;margin:5px 0 2px;}.rbld{font-size:10px;color:var(--text-muted);margin-bottom:7px;}
+.sbar{display:flex;gap:7px;margin-bottom:14px;flex-wrap:wrap;}
+.si2{flex:1;min-width:150px;}
+.fsel{padding:8px 12px;border:2px solid var(--border);border-radius:9px;background:var(--bg);color:var(--text);font-size:11px;cursor:pointer;}
+.sh{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.stitle{font-size:15px;font-weight:800;}
+.sact{display:flex;gap:5px;}
+.sdot{width:6px;height:6px;background:var(--success);border-radius:50%;display:inline-block;animation:pu 2s infinite;}
+@keyframes pu{0%,100%{opacity:1}50%{opacity:.25}}
+.nwrap{position:fixed;top:70px;right:16px;z-index:9999;display:flex;flex-direction:column;gap:6px;}
+.notif{background:var(--card);border-radius:10px;padding:11px 15px;box-shadow:0 4px 20px rgba(0,0,0,.18);border-left:4px solid var(--success);min-width:260px;font-size:12px;animation:slin .3s ease;display:flex;align-items:center;gap:7px;}
+.notif.e{border-left-color:var(--danger);}
+@keyframes slin{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:translateX(0)}}
+@media(max-width:900px){.sg{grid-template-columns:repeat(2,1fr)}.cg{grid-template-columns:1fr}.slayout{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════ PORTAL ═══════════════════════ -->
+<div id="portalPage">
+  <div class="portal-head">
+    <div class="portal-badge">🎓 New Era University</div>
+    <div class="portal-logo">🔬</div>
+    <h1>Laboratory Usage Log</h1>
+    <p>Select your role to access the system</p>
+  </div>
+  <div class="portal-cards">
+    <div class="pcard p" onclick="showLogin('prof')">
+      <div class="pcard-ico">👨‍🏫</div>
+      <h2>Professor</h2>
+      <p>Log in to start and end your laboratory sessions securely.</p>
+      <div class="pcard-arr">→</div>
+    </div>
+    <div class="pcard a" onclick="showLogin('admin')">
+      <div class="pcard-ico">🛡️</div>
+      <h2>Administrator</h2>
+      <p>Access the dashboard to monitor labs and manage rooms.</p>
+      <div class="pcard-arr">→</div>
+    </div>
+  </div>
+  <div class="portal-foot">NEU Laboratory Management System • Authorized Personnel Only</div>
+</div>
+
+<!-- ═══════════════════════ PROFESSOR LOGIN ═══════════════════════ -->
+<div class="lpage" id="pLogin">
+  <div class="lbg lbg1"></div><div class="lbg lbg2"></div>
+  <div class="lcard">
+    <button class="lback" onclick="goPortal()">← Back</button>
+    <div class="llogo">
+      <div class="lico r">👨‍🏫</div>
+      <h2>Professor Login</h2>
+      <p>NEU Laboratory Usage Log</p>
+      <span class="rtag r">Professor Portal</span>
+    </div>
+    <button class="btn-gg" onclick="gLogin('prof')">
+      <svg width="17" height="17" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+      Sign in with Google (@neu.edu.ph)
+    </button>
+    <div class="divider">or use Faculty QR ID</div>
+    <button class="btn-qr r" onclick="openQR('prof')">📲 &nbsp;Scan / Enter Faculty QR ID</button>
+    <div class="lerr" id="pErr">⚠️ Access restricted to <strong>@neu.edu.ph</strong> accounts only.</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════ ADMIN LOGIN ═══════════════════════ -->
+<div class="lpage" id="aLogin">
+  <div class="lbg lbg1" style="background:rgba(255,255,255,.03)"></div>
+  <div class="lbg lbg2" style="background:rgba(245,166,35,.04)"></div>
+  <div class="lcard">
+    <button class="lback" onclick="goPortal()">← Back</button>
+    <div class="llogo">
+      <div class="lico b">🛡️</div>
+      <h2>Admin Login</h2>
+      <p>NEU Laboratory Usage Log</p>
+      <span class="rtag b">Administrator Portal</span>
+    </div>
+    <button class="btn-gg" onclick="gLogin('admin')">
+      <svg width="17" height="17" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+      Sign in with Google (@neu.edu.ph)
+    </button>
+    <div class="divider">or use Admin QR ID</div>
+    <button class="btn-qr b" onclick="openQR('admin')">🔐 &nbsp;Enter Admin QR ID</button>
+    <div class="lerr" id="aErr">⚠️ Invalid credentials or insufficient privileges.</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════ QR MODAL ═══════════════════════ -->
+<div class="moverlay" id="qrModal">
+  <div class="mbox">
+    <div id="qrRoleTag"></div>
+    <h3>📲 QR Code Login</h3>
+    <p class="msub">Scan your ID card QR code or type your unique QR ID below.</p>
+    <div class="qr-ph">📷</div>
+    <div style="margin-bottom:10px">
+      <div style="font-size:9px;font-weight:800;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px" id="qrTblLbl"></div>
+      <table class="id-tbl"><thead><tr><th>Name</th><th>Unique QR ID</th></tr></thead><tbody id="qrTblBody"></tbody></table>
+    </div>
+    <input type="text" class="qinp" id="qrInp" placeholder="Enter your QR ID…" />
+    <div class="qhint" id="qrHint"></div>
+    <button class="btn btn-p btn-bl" onclick="submitQR()">✔ Verify & Login</button>
+    <button class="btn btn-o btn-bl mt2" onclick="closeM('qrModal')">Cancel</button>
+  </div>
+</div>
+
+<!-- End Session Modal -->
+<div class="moverlay" id="endModal">
+  <div class="mbox" style="text-align:center">
+    <div style="font-size:46px;margin-bottom:9px">⏹</div>
+    <h3>End Session?</h3>
+    <p class="msub">This will record your end time and free the room.</p>
+    <div style="background:var(--bg);border-radius:10px;padding:12px;margin:12px 0;text-align:left">
+      <div style="font-size:12px;color:var(--text-muted)">Room: <strong id="emRoom" style="color:var(--text)">—</strong></div>
+      <div style="font-size:12px;color:var(--text-muted);margin-top:5px">Duration: <strong id="emDur" style="color:var(--neu-red)">—</strong></div>
+    </div>
+    <button class="btn btn-d btn-bl" onclick="endSession()">✔ Confirm End</button>
+    <button class="btn btn-o btn-bl mt2" onclick="closeM('endModal')">Cancel</button>
+  </div>
+</div>
+
+<!-- Add Room Modal -->
+<div class="moverlay" id="addRoomM">
+  <div class="mbox">
+    <h3>🏛 Add New Room</h3><p class="msub">Register a new laboratory room.</p>
+    <div class="fg"><label class="fl">Room Number</label><input type="text" class="qinp" id="nRNum" placeholder="e.g. Lab 501"/></div>
+    <div class="fg"><label class="fl">Building</label><input type="text" class="qinp" id="nRBld" placeholder="e.g. Annex Building"/></div>
+    <div class="fg"><label class="fl">Capacity</label><input type="number" class="qinp" id="nRCap" placeholder="e.g. 40"/></div>
+    <button class="btn btn-p btn-bl" onclick="addRoom()">Add Room</button>
+    <button class="btn btn-o btn-bl mt2" onclick="closeM('addRoomM')">Cancel</button>
+  </div>
+</div>
+
+<!-- Add Prof Modal -->
+<div class="moverlay" id="addProfM">
+  <div class="mbox">
+    <h3>👤 Add Professor</h3><p class="msub">Manually register a professor. Assign a unique Faculty QR ID (FAC- prefix).</p>
+    <div class="fg"><label class="fl">Full Name</label><input type="text" class="qinp" id="nPN" placeholder="e.g. Dr. Juan dela Cruz"/></div>
+    <div class="fg"><label class="fl">NEU Email</label><input type="email" class="qinp" id="nPE" placeholder="jdelacruz@neu.edu.ph"/></div>
+    <div class="fg"><label class="fl">Faculty QR ID <span style="color:var(--text-muted);font-weight:400">(must be unique, starts with FAC-)</span></label><input type="text" class="qinp" id="nPI" placeholder="e.g. FAC-2024-006" style="font-family:monospace;font-weight:700"/></div>
+    <button class="btn btn-p btn-bl" onclick="addProfessor()">Add Professor</button>
+    <button class="btn btn-o btn-bl mt2" onclick="closeM('addProfM')">Cancel</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════ APP ═══════════════════════ -->
+<div id="app">
+  <aside class="sidebar">
+    <div class="sb-head">
+      <div class="sb-logo">
+        <div class="sb-logo-i">🔬</div>
+        <div><div class="sb-logo-t">NEU Lab Log</div><div class="sb-logo-s">New Era University</div></div>
+      </div>
+    </div>
+    <div class="sb-user">
+      <div class="uava" id="sbAva">P</div>
+      <div><span class="uname" id="sbName">—</span><span class="uemail" id="sbEmail">—</span><span class="urb" id="sbRb">—</span></div>
+    </div>
+    <nav class="sb-nav" id="sbNav"></nav>
+    <div class="sb-foot"><button class="btn-lo" onclick="logout()">🚪 Logout</button></div>
+  </aside>
+  <div class="main">
+    <div class="topbar">
+      <div class="tb-title" id="topTitle">—</div>
+      <div class="tb-right">
+        <span class="tchip" id="clock">🕐 00:00:00</span>
+        <button class="dbtn" onclick="toggleDark()">🌙</button>
+      </div>
+    </div>
+
+    <!-- Prof: Start Session -->
+    <div class="page" id="pgSession">
+      <div class="slayout">
+        <div>
+          <div class="timer-card" id="timerCard" style="display:none">
+            <div class="t-room" id="tRoom">📍 —</div>
+            <div class="t-disp" id="tDisp">00:00:00</div>
+            <div class="t-lbl">Session Duration</div>
+            <div style="margin-top:12px">
+              <button class="btn btn-bl" style="background:rgba(255,255,255,.18);color:#fff;border:2px solid rgba(255,255,255,.32);font-size:13px" onclick="document.getElementById('endModal').classList.add('active')">⏹ End Session</button>
+            </div>
+          </div>
+          <div id="sAlert"></div>
+          <div class="card" id="sForm">
+            <div class="sh"><div class="stitle">📋 Start Laboratory Session</div><span style="font-size:11px;color:var(--text-muted)" id="fDate"></span></div>
+            <div class="fg">
+              <label class="fl">🏛 Select Room</label>
+              <select class="fc" id="selR"><option value="">— Choose a Room —</option><option>Lab 301 – Main Building</option><option>Lab 302 – Main Building</option><option>Lab 401 – Annex Building</option><option>Lab 402 – Annex Building</option><option>CL-01 – Computer Lab</option><option>CL-02 – Computer Lab</option><option>SL-01 – Science Lab</option></select>
+            </div>
+            <div class="fg2">
+              <div class="fg"><label class="fl">🏫 College</label><select class="fc" id="selC"><option value="">— Select —</option><option>College of Computer Studies</option><option>College of Engineering</option><option>College of Business</option><option>College of Education</option><option>College of Nursing</option><option>College of Arts & Sciences</option></select></div>
+              <div class="fg"><label class="fl">📚 Program</label><select class="fc" id="selPr"><option value="">— Select —</option><option>BS Computer Science</option><option>BS Information Technology</option><option>BS Computer Engineering</option><option>BS Civil Engineering</option><option>BS Business Administration</option><option>BS Nursing</option></select></div>
+            </div>
+            <div class="fg2">
+              <div class="fg"><label class="fl">👥 Section</label><input type="text" class="fc" id="inpSec" placeholder="e.g. BSCS 3-A"/></div>
+              <div class="fg"><label class="fl">🎯 Track / Subject</label><input type="text" class="fc" id="inpTr" placeholder="e.g. Web Development"/></div>
+            </div>
+            <div class="fg"><label class="fl">🕐 Start Time (Auto)</label><input type="text" class="fc" id="inpST" readonly style="background:rgba(192,39,45,.05);font-weight:700;color:var(--neu-red)"/></div>
+            <div class="fg"><label class="fl">📝 Notes (Optional)</label><textarea class="fc" id="inpN" rows="2" placeholder="Additional remarks…"></textarea></div>
+            <button class="btn btn-p btn-bl" style="font-size:13px;padding:12px" onclick="startSession()">▶ &nbsp;Start Session</button>
+          </div>
+        </div>
+        <div>
+          <div class="pcard2">
+            <div class="pbanner"></div>
+            <div class="pavaw"><div class="pava p" id="pAva">P</div></div>
+            <div class="pinfo">
+              <h3 id="pName">—</h3><p id="pEmail">—</p>
+              <div class="pstats">
+                <div class="ps"><div class="psv" id="pSess">0</div><div class="psl">Sessions</div></div>
+                <div class="ps"><div class="psv" id="pHrs">0h</div><div class="psl">Hours</div></div>
+              </div>
+            </div>
+          </div>
+          <div class="card" style="margin-top:11px">
+            <div style="font-size:12px;font-weight:800;margin-bottom:9px">🏛 Room Status</div>
+            <div id="miniRm"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Prof: My Logs -->
+    <div class="page" id="pgMyLogs">
+      <div class="sh"><div class="stitle">📁 My Session Logs</div><button class="btn btn-ex" onclick="dlMyLogs()">⬇ CSV</button></div>
+      <div class="card">
+        <div class="sbar"><input type="text" class="fc si2" placeholder="🔍 Search…" oninput="filterML(this.value)"/></div>
+        <div class="tw"><table><thead><tr><th>Room</th><th>College</th><th>Program</th><th>Section</th><th>Track</th><th>Start</th><th>End</th><th>Duration</th><th>Status</th></tr></thead><tbody id="mlBody"></tbody></table></div>
+      </div>
+    </div>
+
+    <!-- Admin: Dashboard -->
+    <div class="page" id="pgDash">
+      <div class="sg">
+        <div class="sc"><div class="si ic-r">🏛</div><div><div class="sv" id="stTot">0</div><div class="sl">Total Sessions</div><div class="st">▲ All time</div></div></div>
+        <div class="sc"><div class="si ic-g">⏱</div><div><div class="sv" id="stHrs">0h</div><div class="sl">Hours Logged</div><div class="st">▲ Cumulative</div></div></div>
+        <div class="sc"><div class="si ic-b">🟢</div><div><div class="sv" id="stAct">0</div><div class="sl">Active Now</div><div class="st"><span class="sdot"></span> Live</div></div></div>
+        <div class="sc"><div class="si ic-d">👨‍🏫</div><div><div class="sv" id="stPr">0</div><div class="sl">Professors</div><div class="st">Registered</div></div></div>
+      </div>
+      <div class="cg">
+        <div class="cc"><div class="ch"><div class="ct">📊 Sessions – Last 7 Days</div><span class="ctag">Weekly</span></div><canvas id="chU" height="190"></canvas></div>
+        <div class="cc"><div class="ch"><div class="ct">🍩 By College</div><span class="ctag">All Time</span></div><canvas id="chC" height="190"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="sh"><div class="stitle">⚡ Live Room Status</div><span style="font-size:10px;color:var(--text-muted)"><span class="sdot"></span> Real-time</span></div>
+        <div class="rg" id="admRoomGrid"></div>
+      </div>
+    </div>
+
+    <!-- Admin: All Logs -->
+    <div class="page" id="pgLogs">
+      <div class="sh"><div class="stitle">📋 All Session Logs</div><div class="sact"><button class="btn btn-ex" onclick="dlAllLogs()">⬇ CSV</button></div></div>
+      <div class="card">
+        <div class="sbar">
+          <input type="text" class="fc si2" placeholder="🔍 Search name, QR ID, room…" oninput="filterAL(this.value)"/>
+          <select class="fsel" id="alRoomF" onchange="filterAL('')"><option value="">All Rooms</option></select>
+        </div>
+        <div class="tw"><table><thead><tr><th>Professor</th><th>QR ID</th><th>Room</th><th>College</th><th>Section</th><th>Track</th><th>Start</th><th>End</th><th>Duration</th><th>Status</th></tr></thead><tbody id="alBody"></tbody></table></div>
+      </div>
+    </div>
+
+    <!-- Admin: Professors -->
+    <div class="page" id="pgProfs">
+      <div class="sh"><div class="stitle">👨‍🏫 Manage Professors</div><button class="btn btn-p" onclick="document.getElementById('addProfM').classList.add('active')">+ Add Professor</button></div>
+      <div class="card">
+        <div class="sbar"><input type="text" class="fc si2" placeholder="🔍 Search by name, email, QR ID…" oninput="filterPr(this.value)"/></div>
+        <div class="tw"><table><thead><tr><th>Name</th><th>Email</th><th>Unique QR ID</th><th>Sessions</th><th>Status</th><th>Action</th></tr></thead><tbody id="prBody"></tbody></table></div>
+      </div>
+    </div>
+
+    <!-- Admin: Rooms -->
+    <div class="page" id="pgRooms">
+      <div class="sh"><div class="stitle">🏛 Manage Rooms</div><button class="btn btn-p" onclick="document.getElementById('addRoomM').classList.add('active')">+ Add Room</button></div>
+      <div class="rg" id="admRoomsGrid"></div>
+    </div>
+  </div>
+</div>
+
+<div class="nwrap" id="nWrap"></div>
+
+<script>
+// ══════════════════════════════════════════════════
+// DATA — Simulates Firestore
+// ══════════════════════════════════════════════════
+
+/**
+ * PROFESSORS — each has a UNIQUE Faculty QR ID (FAC- prefix)
+ * These IDs are printed on their physical faculty ID cards.
+ * No two professors share the same QR ID.
+ */
+let PROFS = [
+  { id:'p1', name:'Dr. Maria Santos',       email:'msantos@neu.edu.ph',    qr:'FAC-2024-001', role:'professor', blocked:false, sessions:14 },
+  { id:'p2', name:'Prof. Juan dela Cruz',   email:'jdelacruz@neu.edu.ph',  qr:'FAC-2024-002', role:'professor', blocked:false, sessions:9  },
+  { id:'p3', name:'Dr. Ana Reyes',          email:'areyes@neu.edu.ph',     qr:'FAC-2024-003', role:'professor', blocked:true,  sessions:3  },
+  { id:'p4', name:'Prof. Carlos Mendoza',   email:'cmendoza@neu.edu.ph',   qr:'FAC-2024-004', role:'professor', blocked:false, sessions:21 },
+  { id:'p5', name:'Dr. Liza Bautista',      email:'lbautista@neu.edu.ph',  qr:'FAC-2024-005', role:'professor', blocked:false, sessions:7  },
+];
+
+/**
+ * ADMINS — separate series (ADM- prefix), completely distinct from professor IDs.
+ * An admin QR ID entered on the Professor portal will be REJECTED, and vice versa.
+ */
+let ADMINS = [
+  { id:'a1', name:'NEU Admin',              email:'admin@neu.edu.ph',           qr:'ADM-2024-001', role:'admin' },
+  { id:'a2', name:'IT Lab Supervisor',      email:'itsupervisor@neu.edu.ph',    qr:'ADM-2024-002', role:'admin' },
+];
+
+// Fast lookup maps
+const PQ = {}; PROFS.forEach(p  => PQ[p.qr]  = p);
+const AQ = {}; ADMINS.forEach(a => AQ[a.qr] = a);
+
+// Google simulation: cycle through accounts
+let gPi=0, gAi=0;
+
+let ROOMS = [
+  {id:'r1',num:'Lab 301',bld:'Main Building',  cap:40,st:'free'},
+  {id:'r2',num:'Lab 302',bld:'Main Building',  cap:40,st:'occupied'},
+  {id:'r3',num:'Lab 401',bld:'Annex Building', cap:35,st:'free'},
+  {id:'r4',num:'Lab 402',bld:'Annex Building', cap:35,st:'occupied'},
+  {id:'r5',num:'CL-01',  bld:'Computer Lab',   cap:50,st:'free'},
+  {id:'r6',num:'CL-02',  bld:'Computer Lab',   cap:50,st:'free'},
+  {id:'r7',num:'SL-01',  bld:'Science Lab',    cap:30,st:'free'},
+];
+
+let LOGS = [
+  {id:'l1',pid:'p1',pname:'Dr. Maria Santos',    pqr:'FAC-2024-001',room:'Lab 301',col:'College of Computer Studies',prog:'BS Computer Science',     sec:'BSCS 3-A', trk:'Web Development',    s:new Date(Date.now()-3600000*26), e:new Date(Date.now()-3600000*23.5), st:'completed'},
+  {id:'l2',pid:'p2',pname:'Prof. Juan dela Cruz', pqr:'FAC-2024-002',room:'Lab 302',col:'College of Engineering',      prog:'BS Computer Engineering', sec:'BSCPE 2-B',trk:'Digital Electronics',s:new Date(Date.now()-3600000*4),  e:null,                              st:'active'},
+  {id:'l3',pid:'p4',pname:'Prof. Carlos Mendoza', pqr:'FAC-2024-004',room:'Lab 401',col:'College of Computer Studies',prog:'BS Information Technology',sec:'BSIT 4-A', trk:'Database Systems',   s:new Date(Date.now()-3600000*50), e:new Date(Date.now()-3600000*47.5), st:'completed'},
+  {id:'l4',pid:'p1',pname:'Dr. Maria Santos',    pqr:'FAC-2024-001',room:'CL-01',  col:'College of Computer Studies',prog:'BS Computer Science',     sec:'BSCS 1-C', trk:'Programming Basics', s:new Date(Date.now()-3600000*74), e:new Date(Date.now()-3600000*71.5), st:'completed'},
+  {id:'l5',pid:'p4',pname:'Prof. Carlos Mendoza', pqr:'FAC-2024-004',room:'Lab 402',col:'College of Engineering',      prog:'BS Civil Engineering',    sec:'BSCE 3-A', trk:'CAD/CAM',            s:new Date(Date.now()-3600000*2),  e:null,                              st:'active'},
+];
+
+// App State
+const S = {user:null,role:null,qrRole:null,sess:null,sessStart:null,stimer:null,ctimer:null,dark:false,charts:false};
+
+// ══════════════════════════════════════════════════
+// ROUTING
+// ══════════════════════════════════════════════════
+function showLogin(r){
+  document.getElementById('portalPage').style.display='none';
+  document.getElementById('pLogin').classList.toggle('active',r==='prof');
+  document.getElementById('aLogin').classList.toggle('active',r==='admin');
+}
+function goPortal(){
+  document.getElementById('portalPage').style.display='flex';
+  document.getElementById('pLogin').classList.remove('active');
+  document.getElementById('aLogin').classList.remove('active');
+  document.getElementById('pErr').style.display='none';
+  document.getElementById('aErr').style.display='none';
+}
+
+// ══════════════════════════════════════════════════
+// GOOGLE LOGIN (simulated — cycles demo accounts)
+// ══════════════════════════════════════════════════
+function gLogin(portal){
+  if(portal==='prof'){
+    // Every 4th click simulates a non-NEU outsider
+    if(gPi%4===3){
+      document.getElementById('pErr').style.display='block';
+      setTimeout(()=>document.getElementById('pErr').style.display='none',4000);
+      gPi++; return;
+    }
+    const acc = PROFS[gPi%PROFS.length]; gPi++;
+    if(acc.blocked){showE('pErr','Your account is blocked. Contact the administrator.');return;}
+    doLogin(acc,'professor');
+  } else {
+    const acc = ADMINS[gAi%ADMINS.length]; gAi++;
+    doLogin(acc,'admin');
+  }
+}
+
+// ══════════════════════════════════════════════════
+// QR LOGIN — separated by portal; IDs validated by prefix
+// ══════════════════════════════════════════════════
+function openQR(role){
+  S.qrRole=role;
+  document.getElementById('qrInp').value='';
+  const tag=document.getElementById('qrRoleTag');
+  tag.innerHTML=`<span class="mrlabel ${role==='prof'?'r':'b'}">${role==='prof'?'👨‍🏫 Professor Portal':'🛡️ Admin Portal'}</span>`;
+  const lbl=document.getElementById('qrTblLbl');
+  const tbody=document.getElementById('qrTblBody');
+  const hint=document.getElementById('qrHint');
+  if(role==='prof'){
+    lbl.textContent='Faculty QR IDs — printed on ID cards';
+    hint.textContent='Format: FAC-YYYY-NNN  •  Each professor has a unique ID';
+    tbody.innerHTML=PROFS.map(p=>`<tr><td>${p.name}</td><td><span class="qid">${p.qr}</span>${p.blocked?' <span class="bx b-blk">Blocked</span>':''}</td></tr>`).join('');
+  } else {
+    lbl.textContent='Admin QR IDs — separate series from professors';
+    hint.textContent='Format: ADM-YYYY-NNN  •  Cannot be used on the Professor portal';
+    tbody.innerHTML=ADMINS.map(a=>`<tr><td>${a.name}</td><td><span class="qid a">${a.qr}</span></td></tr>`).join('');
+  }
+  document.getElementById('qrModal').classList.add('active');
+}
+
+function submitQR(){
+  const v=document.getElementById('qrInp').value.trim().toUpperCase();
+  if(!v){notif('Please enter a QR ID','e');return;}
+
+  if(S.qrRole==='prof'){
+    // Validate prefix: professor IDs MUST start with FAC-
+    if(!v.startsWith('FAC-')){
+      notif('❌ Wrong ID type! Professor IDs start with FAC-  (Admin IDs are not accepted here)','e'); return;
+    }
+    const u=PQ[v];
+    if(!u){notif('Faculty ID not found. Check your ID card.','e');return;}
+    if(u.blocked){notif('Your account is blocked. Contact the administrator.','e');return;}
+    closeM('qrModal'); doLogin(u,'professor');
+  } else {
+    // Validate prefix: admin IDs MUST start with ADM-
+    if(!v.startsWith('ADM-')){
+      notif('❌ Wrong ID type! Admin IDs start with ADM-  (Faculty IDs are not accepted here)','e'); return;
+    }
+    const u=AQ[v];
+    if(!u){notif('Admin ID not found.','e');return;}
+    closeM('qrModal'); doLogin(u,'admin');
+  }
+}
+
+// ══════════════════════════════════════════════════
+// DO LOGIN
+// ══════════════════════════════════════════════════
+function doLogin(user,role){
+  S.user=user; S.role=role;
+  ['portalPage'].forEach(id=>document.getElementById(id).style.display='none');
+  document.getElementById('pLogin').classList.remove('active');
+  document.getElementById('aLogin').classList.remove('active');
+  document.getElementById('app').style.display='flex';
+  setupSB(); startClock();
+  if(role==='admin'){showPg('pgDash');initDash();}
+  else{showPg('pgSession');miniRm();profStats();}
+  notif(`Welcome, ${user.name}! 👋`);
+}
+
+function logout(){
+  clearInterval(S.stimer); clearInterval(S.ctimer);
+  S.user=S.role=null; S.sess=S.sessStart=null; S.charts=false;
+  document.getElementById('app').style.display='none';
+  document.getElementById('timerCard').style.display='none';
+  document.getElementById('sForm').style.display='block';
+  document.getElementById('portalPage').style.display='flex';
+}
+
+// ══════════════════════════════════════════════════
+// SIDEBAR
+// ══════════════════════════════════════════════════
+function setupSB(){
+  const u=S.user;
+  const ini=u.name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+  const ava=document.getElementById('sbAva');
+  ava.textContent=ini; ava.className=`uava ${S.role==='admin'?'a':'p'}`;
+  document.getElementById('sbName').textContent=u.name;
+  document.getElementById('sbEmail').textContent=u.email;
+  const rb=document.getElementById('sbRb');
+  rb.textContent=S.role==='admin'?'Administrator':'Professor';
+  rb.className=`urb ${S.role==='admin'?'a':'p'}`;
+  document.getElementById('pAva').textContent=ini;
+  document.getElementById('pName').textContent=u.name;
+  document.getElementById('pEmail').textContent=u.email;
+  document.getElementById('sbNav').innerHTML=S.role==='admin'?`
+    <div class="nsec">Admin Panel</div>
+    <div class="nitem active" onclick="showPg('pgDash',this);initDash()"><span class="nico">📊</span>Dashboard</div>
+    <div class="nitem" onclick="showPg('pgLogs',this);loadAL()"><span class="nico">📋</span>All Logs</div>
+    <div class="nitem" onclick="showPg('pgProfs',this);loadPr()"><span class="nico">👨‍🏫</span>Professors</div>
+    <div class="nitem" onclick="showPg('pgRooms',this);loadRm()"><span class="nico">🏛</span>Manage Rooms</div>
+  `:`
+    <div class="nsec">Professor</div>
+    <div class="nitem active" onclick="showPg('pgSession',this)"><span class="nico">▶</span>Start Session</div>
+    <div class="nitem" onclick="showPg('pgMyLogs',this);loadML()"><span class="nico">📁</span>My Logs</div>
+  `;
+}
+
+function showPg(id,el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if(el){document.querySelectorAll('.nitem').forEach(n=>n.classList.remove('active'));el.classList.add('active');}
+  const T={pgSession:'Start Session',pgMyLogs:'My Logs',pgDash:'Dashboard',pgLogs:'All Logs',pgProfs:'Professors',pgRooms:'Manage Rooms'};
+  document.getElementById('topTitle').textContent=T[id]||'';
+}
+
+// ══════════════════════════════════════════════════
+// CLOCK
+// ══════════════════════════════════════════════════
+function startClock(){
+  const t=()=>{
+    const n=new Date();
+    document.getElementById('clock').textContent='🕐 '+n.toLocaleTimeString();
+    document.getElementById('inpST').value=n.toLocaleString();
+    document.getElementById('fDate').textContent=n.toDateString();
+  }; t(); S.ctimer=setInterval(t,1000);
+}
+
+// ══════════════════════════════════════════════════
+// SESSION
+// ══════════════════════════════════════════════════
+function startSession(){
+  const room=document.getElementById('selR').value;
+  const col=document.getElementById('selC').value;
+  const prog=document.getElementById('selPr').value;
+  const sec=document.getElementById('inpSec').value.trim();
+  const trk=document.getElementById('inpTr').value.trim();
+  if(!room||!col||!prog||!sec||!trk){showAl('sAlert','⚠️ Please fill in all required fields.','al-d');return;}
+  const now=new Date();
+  const log={id:'l'+Date.now(),pid:S.user.id,pname:S.user.name,pqr:S.user.qr,room:room.split(' – ')[0],col,prog,sec,trk,notes:document.getElementById('inpN').value,s:now,e:null,st:'active'};
+  LOGS.push(log); S.sess=log; S.sessStart=now;
+  const rm=ROOMS.find(r=>log.room.includes(r.num));
+  if(rm)rm.st='occupied';
+  document.getElementById('sForm').style.display='none';
+  document.getElementById('timerCard').style.display='block';
+  document.getElementById('tRoom').textContent='📍 '+log.room;
+  document.getElementById('emRoom').textContent=log.room;
+  S.stimer=setInterval(tickT,1000);
+  miniRm(); notif(`Session started for ${log.room} ✅`);
+}
+
+function tickT(){
+  if(!S.sessStart)return;
+  const e=Math.floor((Date.now()-S.sessStart)/1000);
+  const h=String(Math.floor(e/3600)).padStart(2,'0');
+  const m=String(Math.floor((e%3600)/60)).padStart(2,'0');
+  const s=String(e%60).padStart(2,'0');
+  document.getElementById('tDisp').textContent=`${h}:${m}:${s}`;
+  document.getElementById('emDur').textContent=`${h}h ${m}m ${s}s`;
+}
+
+function endSession(){
+  if(!S.sess)return;
+  clearInterval(S.stimer);
+  const now=new Date(); S.sess.e=now; S.sess.st='completed';
+  const mins=Math.floor((now-S.sessStart)/60000);
+  const rm=ROOMS.find(r=>S.sess.room.includes(r.num));
+  if(rm)rm.st='free';
+  closeM('endModal'); S.sess=null; S.sessStart=null;
+  document.getElementById('timerCard').style.display='none';
+  document.getElementById('sForm').style.display='block';
+  ['selR','selC','selPr'].forEach(id=>document.getElementById(id).value='');
+  ['inpSec','inpTr','inpN'].forEach(id=>document.getElementById(id).value='');
+  showAl('sAlert',`✅ Session ended! Duration: ${mins} minutes. Thank you for using the laboratory.`,'al-s');
+  setTimeout(()=>document.getElementById('sAlert').innerHTML='',6000);
+  profStats(); miniRm(); notif(`Session ended • ${mins} min ✅`);
+}
+
+function profStats(){
+  if(!S.user)return;
+  const my=LOGS.filter(l=>l.pid===S.user.id&&l.st==='completed');
+  let m=0; my.forEach(l=>{if(l.e)m+=Math.floor((l.e-l.s)/60000);});
+  document.getElementById('pSess').textContent=my.length;
+  document.getElementById('pHrs').textContent=Math.round(m/60)+'h';
+}
+
+function miniRm(){
+  const c=document.getElementById('miniRm');
+  if(!c)return;
+  c.innerHTML=ROOMS.slice(0,4).map(r=>`
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border)">
+      <span style="font-size:11px;font-weight:800">🏛 ${r.num}</span>
+      <span class="bx b-${r.st==='free'?'fre':'occ'}">${r.st==='free'?'✅ Free':'🔴 Occupied'}</span>
+    </div>`).join('');
+}
+
+// ══════════════════════════════════════════════════
+// MY LOGS
+// ══════════════════════════════════════════════════
+function loadML(){renderML(LOGS.filter(l=>l.pid===S.user.id));}
+function renderML(logs){
+  document.getElementById('mlBody').innerHTML=logs.length===0
+    ?`<tr><td colspan="9" style="text-align:center;padding:26px;color:var(--text-muted)">No sessions yet.</td></tr>`
+    :logs.map(l=>{const d=l.e?Math.floor((l.e-l.s)/60000)+' min':'—';return`<tr><td><strong>${l.room}</strong></td><td>${l.col.replace('College of ','')}</td><td>${l.prog}</td><td>${l.sec}</td><td>${l.trk}</td><td>${l.s.toLocaleString()}</td><td>${l.e?l.e.toLocaleString():'—'}</td><td>${d}</td><td><span class="bx b-${l.st==='active'?'act':'don'}">${l.st==='active'?'🟢 Active':'✅ Done'}</span></td></tr>`;}).join('');
+}
+function filterML(q){renderML(LOGS.filter(l=>l.pid===S.user.id&&(l.room.toLowerCase().includes(q.toLowerCase())||l.sec.toLowerCase().includes(q.toLowerCase())||l.trk.toLowerCase().includes(q.toLowerCase()))));}
+function dlMyLogs(){dlCSV(LOGS.filter(l=>l.pid===S.user.id),'my_sessions');}
+
+// ══════════════════════════════════════════════════
+// ADMIN DASHBOARD
+// ══════════════════════════════════════════════════
+function initDash(){
+  const done=LOGS.filter(l=>l.st==='completed');
+  let m=0; done.forEach(l=>{if(l.e)m+=Math.floor((l.e-l.s)/60000);});
+  document.getElementById('stTot').textContent=LOGS.length;
+  document.getElementById('stHrs').textContent=Math.round(m/60)+'h';
+  document.getElementById('stAct').textContent=LOGS.filter(l=>l.st==='active').length;
+  document.getElementById('stPr').textContent=PROFS.length;
+  renderARG();
+  if(!S.charts){S.charts=true;initCharts();}
+}
+function renderARG(){
+  const g=document.getElementById('admRoomGrid');
+  if(!g)return;
+  g.innerHTML=ROOMS.map(r=>`<div class="rc ${r.st}"><div style="font-size:26px">${r.st==='free'?'✅':'🔴'}</div><div class="rnum">🏛 ${r.num}</div><div class="rbld">${r.bld}</div><span class="bx b-${r.st==='free'?'fre':'occ'}">${r.st==='free'?'Free':'Occupied'}</span><div style="font-size:10px;color:var(--text-muted);margin-top:4px">Cap: ${r.cap}</div></div>`).join('');
+}
+function initCharts(){
+  const days=[],cnt=[];
+  for(let i=6;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);days.push(d.toLocaleDateString('en',{weekday:'short',month:'short',day:'numeric'}));cnt.push(LOGS.filter(l=>new Date(l.s).toDateString()===d.toDateString()).length+Math.floor(Math.random()*3));}
+  new Chart(document.getElementById('chU'),{type:'bar',data:{labels:days,datasets:[{label:'Sessions',data:cnt,backgroundColor:'rgba(192,39,45,.7)',borderColor:'#C0272D',borderWidth:2,borderRadius:6}]},options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}}}});
+  const cols={};LOGS.forEach(l=>{const c=l.col.replace('College of ','');cols[c]=(cols[c]||0)+1;});
+  new Chart(document.getElementById('chC'),{type:'doughnut',data:{labels:Object.keys(cols),datasets:[{data:Object.values(cols),backgroundColor:['#C0272D','#F5A623','#17a2b8','#28a745','#6610f2','#fd7e14']}]},options:{responsive:true,plugins:{legend:{position:'bottom',labels:{font:{size:9}}}}}});
+}
+
+// ══════════════════════════════════════════════════
+// ADMIN LOGS
+// ══════════════════════════════════════════════════
+function loadAL(){
+  const sel=document.getElementById('alRoomF');
+  sel.innerHTML='<option value="">All Rooms</option>'+ROOMS.map(r=>`<option>${r.num}</option>`).join('');
+  renderAL(LOGS);
+}
+function renderAL(logs){
+  document.getElementById('alBody').innerHTML=logs.map(l=>{
+    const d=l.e?Math.floor((l.e-l.s)/60000)+' min':'—';
+    return`<tr><td><strong>${l.pname}</strong></td><td><span class="qid" style="font-size:10px">${l.pqr}</span></td><td>${l.room}</td><td>${l.col.replace('College of ','')}</td><td>${l.sec}</td><td>${l.trk}</td><td>${l.s.toLocaleString()}</td><td>${l.e?l.e.toLocaleString():'—'}</td><td>${d}</td><td><span class="bx b-${l.st==='active'?'act':'don'}">${l.st==='active'?'🟢 Active':'✅ Done'}</span></td></tr>`;
+  }).join('')||`<tr><td colspan="10" style="text-align:center;padding:26px;color:var(--text-muted)">No logs.</td></tr>`;
+}
+function filterAL(q){
+  const room=document.getElementById('alRoomF')?.value||'';
+  renderAL(LOGS.filter(l=>(!q||l.pname.toLowerCase().includes(q.toLowerCase())||l.pqr.toLowerCase().includes(q.toLowerCase())||l.room.toLowerCase().includes(q.toLowerCase())||l.sec.toLowerCase().includes(q.toLowerCase()))&&(!room||l.room===room)));
+}
+function dlAllLogs(){dlCSV(LOGS,'neu_lab_all_logs');}
+
+// ══════════════════════════════════════════════════
+// PROFESSORS MANAGEMENT
+// ══════════════════════════════════════════════════
+function loadPr(){renderPr(PROFS);}
+function renderPr(list){
+  document.getElementById('prBody').innerHTML=list.map(p=>`<tr><td><strong>${p.name}</strong></td><td>${p.email}</td><td><span class="qid">${p.qr}</span></td><td>${p.sessions}</td><td><span class="bx b-${p.blocked?'blk':'act'}">${p.blocked?'🚫 Blocked':'✅ Active'}</span></td><td><button class="btn btn-sm btn-${p.blocked?'s':'d'}" onclick="toggleBlk('${p.id}')">${p.blocked?'✅ Unblock':'🚫 Block'}</button></td></tr>`).join('');
+}
+function filterPr(q){renderPr(PROFS.filter(p=>p.name.toLowerCase().includes(q.toLowerCase())||p.email.toLowerCase().includes(q.toLowerCase())||p.qr.toLowerCase().includes(q.toLowerCase())));}
+function toggleBlk(id){const p=PROFS.find(x=>x.id===id);if(p){p.blocked=!p.blocked;loadPr();notif(p.blocked?`${p.name} blocked.`:`${p.name} unblocked.`,p.blocked?'e':'ok');}}
+function addProfessor(){
+  const n=document.getElementById('nPN').value.trim();
+  const e=document.getElementById('nPE').value.trim();
+  const q=document.getElementById('nPI').value.trim().toUpperCase();
+  if(!n||!e||!q){notif('Fill all fields','e');return;}
+  if(!e.endsWith('@neu.edu.ph')){notif('Email must be @neu.edu.ph','e');return;}
+  if(!q.startsWith('FAC-')){notif('QR ID must start with FAC-','e');return;}
+  if(PQ[q]){notif('That QR ID is already taken. Use a unique FAC- ID.','e');return;}
+  const np={id:'p'+Date.now(),name:n,email:e,qr:q,role:'professor',blocked:false,sessions:0};
+  PROFS.push(np); PQ[q]=np;
+  closeM('addProfM'); loadPr(); notif(`${n} added! QR ID: ${q}`);
+}
+
+// ══════════════════════════════════════════════════
+// ROOMS
+// ══════════════════════════════════════════════════
+function loadRm(){
+  document.getElementById('admRoomsGrid').innerHTML=ROOMS.map(r=>`<div class="rc ${r.st}"><div style="font-size:26px;margin-bottom:5px">🏛</div><div class="rnum">${r.num}</div><div class="rbld">${r.bld}</div><div style="margin:7px 0"><span class="bx b-${r.st==='free'?'fre':'occ'}">${r.st==='free'?'✅ Free':'🔴 Occupied'}</span></div><div style="font-size:10px;color:var(--text-muted)">Capacity: ${r.cap}</div><button class="btn btn-sm btn-d" style="margin-top:9px;width:100%" onclick="rmRoom('${r.id}')">🗑 Remove</button></div>`).join('');
+}
+function addRoom(){
+  const num=document.getElementById('nRNum').value.trim();
+  const bld=document.getElementById('nRBld').value.trim();
+  const cap=parseInt(document.getElementById('nRCap').value)||40;
+  if(!num||!bld){notif('Enter room number and building','e');return;}
+  ROOMS.push({id:'r'+Date.now(),num,bld,cap,st:'free'});
+  closeM('addRoomM'); loadRm(); notif(`Room ${num} added!`);
+}
+function rmRoom(id){const i=ROOMS.findIndex(r=>r.id===id);if(i>-1){const n=ROOMS[i].num;ROOMS.splice(i,1);loadRm();notif(`Room ${n} removed.`,'e');}}
+
+// ══════════════════════════════════════════════════
+// CSV EXPORT
+// ══════════════════════════════════════════════════
+function dlCSV(logs,fname){
+  const H=['Professor','QR ID','Room','College','Program','Section','Track','Start','End','Duration (min)','Status'];
+  const R=logs.map(l=>[l.pname,l.pqr,l.room,l.col,l.prog,l.sec,l.trk,l.s.toLocaleString(),l.e?l.e.toLocaleString():'',l.e?Math.floor((l.e-l.s)/60000):'',l.st]);
+  const csv=[H,...R].map(r=>r.map(v=>`"${v}"`).join(',')).join('\n');
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download=`${fname}_${new Date().toISOString().split('T')[0]}.csv`;a.click();notif('CSV exported 📥');
+}
+
+// ══════════════════════════════════════════════════
+// UTILS
+// ══════════════════════════════════════════════════
+function closeM(id){document.getElementById(id).classList.remove('active');}
+document.querySelectorAll('.moverlay').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('active');}));
+function showAl(id,msg,cls){document.getElementById(id).innerHTML=`<div class="al ${cls}">${msg}</div>`;}
+function showE(elId,msg){const el=document.getElementById(elId);el.textContent='⚠️ '+msg;el.style.display='block';setTimeout(()=>el.style.display='none',5000);}
+function notif(msg,type='ok'){
+  const w=document.getElementById('nWrap');
+  const d=document.createElement('div');
+  d.className=`notif${type==='e'?' e':''}`;
+  d.innerHTML=`<span>${type==='e'?'❌':'✅'}</span> ${msg}`;
+  w.appendChild(d);
+  setTimeout(()=>{d.style.opacity='0';d.style.transition='opacity .4s';setTimeout(()=>d.remove(),400);},3500);
+}
+function toggleDark(){S.dark=!S.dark;document.body.classList.toggle('dark',S.dark);}
+
+// Demo hint
+window.onload=()=>{
+  setTimeout(()=>{
+    const h=document.createElement('div');
+    h.style.cssText='position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:#1a1a2e;color:#fff;padding:10px 20px;border-radius:24px;font-size:11px;z-index:9999;line-height:2;text-align:center;box-shadow:0 4px 20px rgba(0,0,0,.4)';
+    h.innerHTML='💡 <strong>Demo QR IDs</strong><br>Professor: <code style="background:rgba(255,255,255,.15);padding:1px 6px;border-radius:4px">FAC-2024-001</code> to <code style="background:rgba(255,255,255,.15);padding:1px 6px;border-radius:4px">FAC-2024-005</code> &nbsp;|&nbsp; Admin: <code style="background:rgba(255,255,255,.15);padding:1px 6px;border-radius:4px">ADM-2024-001</code> or <code style="background:rgba(255,255,255,.15);padding:1px 6px;border-radius:4px">ADM-2024-002</code>';
+    document.body.appendChild(h);
+    setTimeout(()=>{h.style.opacity='0';h.style.transition='opacity .5s';setTimeout(()=>h.remove(),500);},9000);
+  },700);
+};
+</script>
+</body>
+</html>
